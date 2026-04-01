@@ -193,12 +193,3 @@ blog/
 
 - [docs/README.md](./docs/README.md)：重构文档索引
 - [docs/02-rebuild-architecture.md](./docs/02-rebuild-architecture.md)：如果只看一份文档，优先看这一份
-
-## 适合继续补充的内容
-
-如果你准备把这个仓库公开给更多人，下一步通常值得补的是：
-
-- 页面截图或录屏
-- 一份真实的发布部署说明
-- 初始化演示数据脚本
-- API 示例请求
