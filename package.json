@@ -1,0 +1,19 @@
+{
+  "name": "blog",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Independent monorepo skeleton for the blog rewrite",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "npm run dev --workspace @blog/web",
+    "dev:api": "npm run dev --workspace @blog/api",
+    "build": "npm run build --workspace @blog/web && npm run build --workspace @blog/api",
+    "typecheck": "npm run typecheck --workspace @blog/web && npm run typecheck --workspace @blog/api",
+    "db:generate": "npm run db:generate --workspace @blog/api",
+    "db:migrate": "npm run db:migrate --workspace @blog/api"
+  }
+}

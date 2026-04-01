@@ -1,0 +1,27 @@
+{
+  "name": "@blog/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@blog/shared": "file:../../packages/shared",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@volar/typescript": "^2.4.15",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "minimatch": "^9.0.5",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.12",
+    "vue-tsc": "^2.2.0"
+  }
+}

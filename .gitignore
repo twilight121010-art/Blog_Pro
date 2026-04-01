@@ -1,0 +1,15 @@
+node_modules
+dist
+.vite
+*.log
+.env
+.env.*
+!.env.example
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+apps/api/prisma/dev.db-shm
+apps/api/prisma/dev.db-wal
+uploads/*
+!uploads/.gitkeep
+content/posts/*
+!content/posts/.gitkeep

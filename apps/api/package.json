@@ -1,0 +1,29 @@
+{
+  "name": "@blog/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name init"
+  },
+  "dependencies": {
+    "@blog/shared": "file:../../packages/shared",
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^16.4.7",
+    "marked": "^15.0.12",
+    "sanitize-html": "^2.17.0"
+  },
+  "devDependencies": {
+    "@prisma/engines": "^5.22.0",
+    "@types/node": "^22.10.2",
+    "@types/sanitize-html": "^2.16.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3"
+  }
+}

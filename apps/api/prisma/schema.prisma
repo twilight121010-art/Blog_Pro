@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String         @id @default(cuid())
+  userCode  String         @unique
+  username  String         @unique
+  nickname  String
+  avatarUrl String?
+  status    String         @default("ACTIVE")
+  securityQuestion   String?
+  securityAnswerHash String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  profile      UserProfile?
+  identities   UserIdentity[]
+  sessions     Session[]
+  posts        Post[]
+  comments     PostComment[]
+  likes        PostLike[]
+  files        FileAsset[]
+  habits       Habit[]
+  habitRecords HabitRecord[]
+  habitPromptsSent HabitPrompt[] @relation("HabitPromptSender")
+  habitPromptsReceived HabitPrompt[] @relation("HabitPromptRecipient")
+}
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  bio       String?
+  gender    String?
+  region    String?
+  website   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserIdentity {
+  id             String           @id @default(cuid())
+  userId         String
+  provider       String
+  providerUserId String
+  email          String?          @unique
+  phone          String?          @unique
+  passwordHash   String?
+  isPrimary      Boolean          @default(false)
+  verifiedAt     DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model Session {
+  id               String   @id @default(cuid())
+  userId           String
+  refreshTokenHash String
+  userAgent        String?
+  ip               String?
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Post {
+  id            String         @id @default(cuid())
+  authorId      String
+  slug          String         @unique
+  title         String
+  excerpt       String?
+  coverImageUrl String?
+  contentPath   String
+  status        String         @default("DRAFT")
+  visibility    String         @default("PUBLIC")
+  publishedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      PostComment[]
+  likes         PostLike[]
+
+  @@index([authorId])
+  @@index([status, visibility])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+model FileAsset {
+  id           String   @id @default(cuid())
+  ownerId       String
+  category      String
+  originalName  String
+  mimeType      String
+  relativePath  String   @unique
+  publicUrl     String   @unique
+  size          Int
+  createdAt     DateTime @default(now())
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, category])
+}
+
+model Habit {
+  id               String          @id @default(cuid())
+  userId           String
+  name             String
+  description      String?
+  color            String?
+  icon             String?
+  cadence          String          @default("daily")
+  targetCountPerDay Int            @default(1)
+  sortOrder        Int             @default(0)
+  isArchived       Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  records          HabitRecord[]
+  reminders        HabitReminder[]
+  prompts          HabitPrompt[]
+
+  @@index([userId])
+  @@index([userId, isArchived])
+  @@map("habits")
+}
+
+model HabitRecord {
+  id         String   @id @default(cuid())
+  habitId    String
+  userId     String
+  recordDate String
+  value      Int      @default(1)
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  habit      Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, recordDate])
+  @@index([habitId])
+  @@index([userId])
+  @@map("habit_records")
+}
+
+model HabitReminder {
+  id         String   @id @default(cuid())
+  habitId    String   @unique
+  enabled    Boolean  @default(true)
+  remindTime String?
+  timezone   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  habit      Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@map("habit_reminders")
+}
+
+model HabitPrompt {
+  id         String   @id @default(cuid())
+  habitId    String
+  fromUserId String
+  toUserId   String
+  message    String?
+  createdAt  DateTime @default(now())
+  readAt     DateTime?
+  habit      Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  fromUser   User     @relation("HabitPromptSender", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("HabitPromptRecipient", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([habitId, createdAt])
+  @@index([fromUserId, createdAt])
+  @@index([toUserId, createdAt])
+  @@map("habit_prompts")
+}
